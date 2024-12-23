@@ -1,4 +1,4 @@
-![rijksmuseum logo](https://en.m.wikipedia.org/wiki/Rijksmuseum#/media/File%3ALogo_Rijksmuseum.svg)
+![rijksmuseum logo](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Logo_Rijksmuseum.svg/799px-Logo_Rijksmuseum.svg.png)
 
 # Rijksmuseum MCP Server
 
