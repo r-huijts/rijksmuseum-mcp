@@ -1,10 +1,12 @@
+#!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { 
   ListToolsRequestSchema, 
   CallToolRequestSchema,
   McpError,
   ErrorCode,
-  CallToolRequest
+  CallToolRequest,
+  CallToolResult
 } from "@modelcontextprotocol/sdk/types.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import axios from "axios";
@@ -28,11 +30,17 @@ const API_CONFIG = {
 
 interface ArtworkSearchResult {
   id: string;
+  objectNumber: string;
   title: string;
   principalOrFirstMaker: string;
   longTitle: string;
+  subTitle: string;
+  scLabelLine: string;
+  location: string;
   webImage?: {
     url: string;
+    width: number;
+    height: number;
   };
 }
 
@@ -71,6 +79,18 @@ class RijksmuseumServer {
     });
 
     this.setupHandlers();
+    this.setupErrorHandling();
+  }
+
+  private setupErrorHandling(): void {
+    this.server.onerror = (error) => {
+      console.error("[MCP Error]", error);
+    };
+
+    process.on('SIGINT', async () => {
+      await this.server.close();
+      process.exit(0);
+    });
   }
 
   private setupHandlers(): void {
@@ -127,25 +147,41 @@ class RijksmuseumServer {
 
         const artworks = response.data.artObjects.map((artwork: ArtworkSearchResult) => ({
           id: artwork.id,
+          objectNumber: artwork.objectNumber,
           title: artwork.title,
           artist: artwork.principalOrFirstMaker,
-          fullTitle: artwork.longTitle,
-          imageUrl: artwork.webImage?.url
+          description: artwork.longTitle,
+          details: {
+            dimensions: artwork.subTitle,
+            maker: artwork.scLabelLine,
+            location: artwork.location
+          },
+          image: artwork.webImage ? {
+            url: artwork.webImage.url,
+            width: artwork.webImage.width,
+            height: artwork.webImage.height
+          } : null
         }));
 
         return {
-          content: {
-            mimeType: "application/json",
-            text: JSON.stringify(artworks, null, 2)
-          }
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              count: artworks.length,
+              artworks: artworks
+            }, null, 2)
+          }]
         };
 
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          throw new McpError(
-            ErrorCode.InternalError,
-            `Rijksmuseum API error: ${error.response?.data?.message || error.message}`
-          );
+          return {
+            content: [{
+              type: "text",
+              text: `Rijksmuseum API error: ${error.response?.data?.message || error.message}`
+            }],
+            isError: true
+          };
         }
         throw error;
       }
@@ -154,6 +190,7 @@ class RijksmuseumServer {
 
   async run(): Promise<void> {
     const transport = new StdioServerTransport();
+    
     await this.server.connect(transport);
     console.error("Rijksmuseum MCP server running on stdio");
   }
