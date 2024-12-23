@@ -1,3 +1,5 @@
+![rijksmuseum logo](https://en.m.wikipedia.org/wiki/Rijksmuseum#/media/File%3ALogo_Rijksmuseum.svg)
+
 # Rijksmuseum MCP Server
 
 This project implements a Model Context Protocol (MCP) server that interfaces with the Rijksmuseum API. It allows you to search for artworks, retrieve detailed information about specific artworks, access image tiles for artworks, and explore user-created collections from the Rijksmuseum.
@@ -13,7 +15,7 @@ This project implements a Model Context Protocol (MCP) server that interfaces wi
 ## Prerequisites
 
 - Node.js v18 or higher
-- An API key from the Rijksmuseum. You can obtain one by registering for a Rijksstudio account.
+- An API key from the Rijksmuseum. You can obtain one by registering for a Rijksstudio account. More info can be found here: [https://www.rijksmuseum.nl](https://www.rijksmuseum.nl)
 
 ## Setup
 
