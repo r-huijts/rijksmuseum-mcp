@@ -45,6 +45,26 @@ npm start
 
 The server will run using the standard input/output (stdio) transport.
 
+## Configuring Claude Desktop
+
+To connect Claude Desktop to the Rijksmuseum MCP server, update your `claude_desktop_config.json` file with the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "rijksmuseum": {
+      "command": "node",
+      "args": ["path/to/your/server/index.js"],
+      "env": {
+        "RIJKSMUSEUM_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+Replace `path/to/your/server/index.js` with the actual path to your server's entry file and ensure your API key is correctly set.
+
 ## Usage
 
 The server provides several tools that can be accessed via MCP clients:
