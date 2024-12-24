@@ -13,6 +13,7 @@ This project implements a Model Context Protocol (MCP) server that interfaces wi
 - **Artwork Images**: Access image tiles for high-resolution views of artworks.
 - **User Collections**: Explore collections created by users in Rijksstudio.
 - **User Collection Details**: Get detailed information about a specific user collection.
+- **Open Images in Browser**: Directly open artwork images in your system's default web browser.
 
 ## Prerequisites
 
@@ -78,6 +79,18 @@ The server provides several tools that can be accessed via MCP clients:
 - **get_artwork_image**: Get image tiles for an artwork using its object number.
 - **get_user_sets**: List user-created collections.
 - **get_user_set_details**: Retrieve details about a specific user collection.
+- **open_image_in_browser**: Open an artwork's image URL directly in your default web browser.
+
+### Why Open in Browser?
+
+The `open_image_in_browser` tool enhances the user experience by providing a seamless way to view artwork images. Instead of manually copying and pasting URLs, users can directly open high-resolution images in their preferred web browser. This is particularly useful when:
+
+- Examining artwork details in full resolution
+- Sharing images with others
+- Saving images for later reference
+- Comparing multiple artworks side by side in browser tabs
+
+The tool works cross-platform (Windows, macOS, and Linux) and uses your system's default web browser, making it a convenient addition to the artwork exploration workflow.
 
 ## Error Handling
 
