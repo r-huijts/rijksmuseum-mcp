@@ -83,14 +83,18 @@ The server provides several tools that can be accessed via MCP clients:
 
 ### Why Open in Browser?
 
-The `open_image_in_browser` tool enhances the user experience by providing a seamless way to view artwork images. Instead of manually copying and pasting URLs, users can directly open high-resolution images in their preferred web browser. This is particularly useful when:
+The `open_image_in_browser` tool addresses a key limitation: Claude cannot directly display external images in the chat window or as artifacts. This tool provides a workaround by allowing Claude to:
 
-- Examining artwork details in full resolution
-- Sharing images with others
-- Saving images for later reference
-- Comparing multiple artworks side by side in browser tabs
+1. Find artwork images through the Rijksmuseum API
+2. Open them directly in your system's default web browser
 
-The tool works cross-platform (Windows, macOS, and Linux) and uses your system's default web browser, making it a convenient addition to the artwork exploration workflow.
+This enables a more interactive experience when discussing artworks, as Claude can help you:
+- View the actual artwork being discussed
+- Examine specific details mentioned in the conversation
+- Compare different artworks by opening multiple browser tabs
+- Access high-resolution images for better analysis
+
+The tool works cross-platform (Windows, macOS, and Linux) and seamlessly bridges the gap between Claude's text-based interface and the visual nature of art exploration.
 
 ## Error Handling
 
