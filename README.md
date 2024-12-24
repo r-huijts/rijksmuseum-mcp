@@ -81,6 +81,55 @@ The server provides several tools that can be accessed via MCP clients:
 - **get_user_set_details**: Retrieve details about a specific user collection.
 - **open_image_in_browser**: Open an artwork's image URL directly in your default web browser.
 
+### Example Queries
+
+Here are some example queries you can use with Claude to interact with each tool:
+
+#### Search Artwork
+```
+"Show me paintings by Rembrandt"
+"Find artworks featuring flowers"
+"Search for paintings with 'night' in the title"
+```
+
+#### Get Artwork Details
+```
+"Tell me more about The Night Watch"
+"Get detailed information about SK-C-5" (The Night Watch's object number)
+"What are the details of Vermeer's The Milkmaid?"
+```
+
+#### Get Artwork Images
+```
+"Show me the image tiles for The Night Watch"
+"Get the high-resolution image data for SK-C-5"
+```
+
+#### User Collections
+```
+"Show me some user-created collections"
+"What are the most recent Rijksstudio sets?"
+```
+
+#### User Collection Details
+```
+"Show me what's in collection 123456"
+"Get the details of user set 'Dutch Masters'"
+```
+
+#### Open Image in Browser
+```
+"Open The Night Watch in my browser"
+"Show me this painting in my web browser"
+"Open the high-res version of this artwork"
+```
+
+You can also combine these queries naturally:
+```
+"Find paintings of flowers and open the first one in my browser"
+"Search for Vermeer's works and show me The Milkmaid in my browser"
+```
+
 ### Why Open in Browser?
 
 The `open_image_in_browser` tool addresses a key limitation: Claude cannot directly display external images in the chat window or as artifacts. This tool provides a workaround by allowing Claude to:
