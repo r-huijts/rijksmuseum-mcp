@@ -11,6 +11,8 @@ import {
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import axios from "axios";
 import dotenv from "dotenv";
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 // Load environment variables
 dotenv.config();
@@ -91,6 +93,16 @@ interface UserSetDetails extends UserSet {
     objectNumber: string;
     // Add other relevant fields
   }>;
+}
+
+interface OpenImageArguments {
+  imageUrl: string;
+}
+
+function isOpenImageArguments(args: unknown): args is OpenImageArguments {
+  if (!args || typeof args !== 'object') return false;
+  const { imageUrl } = args as any;
+  return typeof imageUrl === 'string' && imageUrl.startsWith('http');
 }
 
 class RijksmuseumServer {
@@ -219,6 +231,20 @@ class RijksmuseumServer {
             },
             required: ["setId"]
           }
+        },
+        {
+          name: "open_image_in_browser",
+          description: "Open an artwork image URL in your default browser",
+          inputSchema: {
+            type: "object",
+            properties: {
+              imageUrl: {
+                type: "string",
+                description: "The URL of the image to open"
+              }
+            },
+            required: ["imageUrl"]
+          }
         }
       ]
     }));
@@ -328,6 +354,32 @@ class RijksmuseumServer {
               }]
             };
 
+          case "open_image_in_browser":
+            if (!isOpenImageArguments(request.params.arguments)) {
+              throw new McpError(
+                ErrorCode.InvalidRequest,
+                "Invalid arguments: imageUrl is required and must be a valid URL string"
+              );
+            }
+
+            try {
+              await this.openInBrowser(request.params.arguments.imageUrl);
+              return {
+                content: [{
+                  type: "text",
+                  text: `Successfully opened image in browser: ${request.params.arguments.imageUrl}`
+                }]
+              };
+            } catch (error) {
+              return {
+                content: [{
+                  type: "text",
+                  text: `Failed to open image in browser: ${error instanceof Error ? error.message : String(error)}`
+                }],
+                isError: true
+              };
+            }
+
           default:
             throw new McpError(
               ErrorCode.MethodNotFound,
@@ -347,6 +399,15 @@ class RijksmuseumServer {
         throw error;
       }
     });
+  }
+
+  private async openInBrowser(url: string): Promise<void> {
+    const execAsync = promisify(exec);
+    const cmd = process.platform === 'win32' ? 'start' :
+                process.platform === 'darwin' ? 'open' :
+                'xdg-open';
+    
+    await execAsync(`${cmd} "${url}"`);
   }
 
   async run(): Promise<void> {
