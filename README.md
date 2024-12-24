@@ -1,8 +1,8 @@
 ![rijksmuseum logo](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Logo_Rijksmuseum.svg/799px-Logo_Rijksmuseum.svg.png)
 
-# Rijksmuseum MCP Server
+# Amsterdam's Rijksmuseum MCP Server
 
-This project implements a Model Context Protocol (MCP) server that interfaces with the Rijksmuseum API. It allows you to search for artworks, retrieve detailed information about specific artworks, access image tiles for artworks, and explore user-created collections from the Rijksmuseum.
+This project implements a Model Context Protocol (MCP) server that interfaces with the Rijksmuseum API. It allows you to search for artworks, retrieve detailed information about specific artworks, access image tiles for artworks, and explore user-created collections from Amsterdam's famous Rijksmuseum.
 
 <a href="https://glama.ai/mcp/servers/4rmiexp64y"><img width="380" height="200" src="https://glama.ai/mcp/servers/4rmiexp64y/badge" alt="Rijksmuseum Server MCP server" /></a>
 
