@@ -6,7 +6,9 @@ import {
   McpError,
   ErrorCode,
   CallToolRequest,
-  CallToolResult
+  CallToolResult,
+  ListResourcesRequestSchema,
+  ReadResourceRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import axios from "axios";
@@ -115,7 +117,12 @@ class RijksmuseumServer {
       version: "0.1.0"
     }, {
       capabilities: {
-        tools: {}
+        tools: {},
+        resources: {
+          list: true,
+          read: true,
+          subscribe: false
+        }
       }
     });
 
@@ -244,6 +251,45 @@ class RijksmuseumServer {
               }
             },
             required: ["imageUrl"]
+          }
+        },
+        {
+          name: "search_artwork",
+          description: "Search the Rijksmuseum collection",
+          inputSchema: {
+            type: "object",
+            properties: {
+              query: { 
+                type: "string",
+                description: "Search terms (optional)"
+              },
+              artist: {
+                type: "string",
+                description: "Filter by artist name (optional)"
+              },
+              century: {
+                type: "number",
+                description: "Filter by century, e.g. 17 for 17th century (optional)"
+              },
+              color: {
+                type: "string",
+                description: "Filter by dominant color hex code (optional)"
+              }
+            }
+          }
+        },
+        {
+          name: "analyze_colors",
+          description: "Analyze the color palette of an artwork",
+          inputSchema: {
+            type: "object", 
+            properties: {
+              artworkId: {
+                type: "string",
+                description: "The ID of the artwork to analyze"
+              }
+            },
+            required: ["artworkId"]
           }
         }
       ]
@@ -399,6 +445,87 @@ class RijksmuseumServer {
         throw error;
       }
     });
+
+    // 2. Color Analysis Resource
+    this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
+      resources: [{
+        uri: "art://collection/popular",
+        name: "Popular Artworks",
+        mimeType: "application/json",
+        description: "Most viewed artworks in the collection"
+      }, {
+        uri: "art://collection/colors/palette",
+        name: "Collection Color Palette",
+        mimeType: "application/json",
+        description: "Analysis of dominant colors across the collection"
+      }]
+    }));
+
+    // Add read resource handler
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      try {
+        switch (request.params.uri) {
+          case "art://collection/popular":
+            const popularResponse = await this.axiosInstance.get(API_CONFIG.ENDPOINTS.COLLECTION, {
+              params: {
+                ps: 10,
+                s: "relevance"
+              }
+            });
+            return {
+              contents: [{
+                uri: request.params.uri,
+                mimeType: "application/json",
+                text: JSON.stringify(popularResponse.data, null, 2)
+              }]
+            };
+
+          case "art://collection/colors/palette":
+            // For now return a mock color palette
+            return {
+              contents: [{
+                uri: request.params.uri,
+                mimeType: "application/json",
+                text: JSON.stringify({
+                  colors: [
+                    { name: "Dark Brown", hex: "#4A3728", percentage: 35 },
+                    { name: "Gold", hex: "#C9B037", percentage: 25 },
+                    { name: "Black", hex: "#000000", percentage: 20 },
+                    { name: "Cream", hex: "#F5E6CB", percentage: 20 }
+                  ]
+                }, null, 2)
+              }]
+            };
+
+          default:
+            throw new McpError(
+              ErrorCode.InvalidRequest,
+              `Resource not found: ${request.params.uri}`
+            );
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          throw new McpError(
+            ErrorCode.InternalError,
+            `Rijksmuseum API error: ${error.response?.data?.message || error.message}`
+          );
+        }
+        throw error;
+      }
+    });
+
+    // 3. Add a prompt template for art analysis
+    const PROMPTS = {
+      "analyze-artwork": {
+        name: "analyze-artwork",
+        description: "Analyze an artwork's composition, style, and historical context",
+        arguments: [{
+          name: "artworkId",
+          description: "ID of the artwork to analyze",
+          required: true
+        }]
+      }
+    };
   }
 
   private async openInBrowser(url: string): Promise<void> {
