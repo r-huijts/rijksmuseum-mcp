@@ -8,19 +8,19 @@ This project implements a Model Context Protocol (MCP) server that interfaces wi
 
 ## Features
 
-- **Search Artworks**: Find artworks in the Rijksmuseum collection using search terms.
-- **Artwork Details**: Retrieve detailed information about a specific artwork.
-- **Artwork Images**: Access image tiles for high-resolution views of artworks.
-- **User Collections**: Explore collections created by users in Rijksstudio.
-- **User Collection Details**: Get detailed information about a specific user collection.
-- **Open Images in Browser**: Directly open artwork images in your system's default web browser.
+- **Search Artworks**: Find artworks in the Rijksmuseum collection using search terms
+- **Artwork Details**: Retrieve detailed information about a specific artwork
+- **Artwork Images**: Access image tiles for high-resolution views of artworks
+- **User Collections**: Explore collections created by users in Rijksstudio
+- **User Collection Details**: Get detailed information about a specific user collection
+- **Open Images in Browser**: Directly open artwork images in your system's default web browser
 
 ## Prerequisites
 
 - Node.js v18 or higher
-- An API key from the Rijksmuseum. You can obtain one by registering for a Rijksstudio account. More info can be found here: [https://www.rijksmuseum.nl](https://www.rijksmuseum.nl)
+- An API key from the Rijksmuseum (get one by registering at [https://www.rijksmuseum.nl/en/research/conduct-research/data](https://www.rijksmuseum.nl/en/research/conduct-research/data))
 
-## Setup
+## Installation
 
 1. Clone the repository:
    ```bash
@@ -33,130 +33,152 @@ This project implements a Model Context Protocol (MCP) server that interfaces wi
    npm install
    ```
 
-3. Set up environment variables:
-   - Create a `.env` file in the root directory.
-   - Add your Rijksmuseum API key:
-     ```
-     RIJKSMUSEUM_API_KEY=your-api-key-here
-     ```
+3. Build the project:
+   ```bash
+   npm run build
+   ```
 
-## Running the Server
+## Configuration
 
-To start the MCP server, run:
-
-```bash
-npm start
+### Environment Variables
+Create a `.env` file in the root directory with your Rijksmuseum API key:
+```
+RIJKSMUSEUM_API_KEY=your-api-key-here
 ```
 
-The server will run using the standard input/output (stdio) transport.
+### Claude Desktop Integration
 
-## Configuring Claude Desktop
+To use this server with Claude Desktop:
 
-To connect Claude Desktop to the Rijksmuseum MCP server, update your `claude_desktop_config.json` file with the following configuration:
+1. Locate your Claude Desktop configuration file:
+   - **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%AppData%\Claude\claude_desktop_config.json`
 
-```json
-{
-  "mcpServers": {
-    "rijksmuseum": {
-      "command": "node",
-      "args": ["path/to/your/server/index.js"],
-      "env": {
-        "RIJKSMUSEUM_API_KEY": "your-api-key-here"
-      }
-    }
-  }
-}
+2. Add the server configuration:
+   ```json
+   {
+     "mcpServers": {
+       "rijksmuseum": {
+         "command": "node",
+         "args": ["/absolute/path/to/build/index.js"],
+         "env": {
+           "RIJKSMUSEUM_API_KEY": "your-api-key-here"
+         }
+       }
+     }
+   }
+   ```
+
+   Replace `/absolute/path/to/build/index.js` with the absolute path to the built JavaScript file in your project's `build` directory.
+
+3. Restart Claude Desktop for the changes to take effect.
+
+## Available Tools
+
+The server provides several tools that can be accessed through MCP clients:
+
+### search_artwork
+Search for artworks using a query string.
+```
+Input: Query string (e.g., "Rembrandt", "flowers", "night")
+Output: List of matching artworks with basic details
 ```
 
-Replace `path/to/your/server/index.js` with the actual path to your server's entry file and ensure your API key is correctly set.
+### get_artwork_details
+Retrieve detailed information about an artwork using its object number.
+```
+Input: Object number (e.g., "SK-C-5" for The Night Watch)
+Output: Comprehensive artwork details including title, artist, date, materials, etc.
+```
 
-## Usage
+### get_artwork_image
+Get image tiles for an artwork using its object number.
+```
+Input: Object number
+Output: Available image tiles and resolutions
+```
 
-The server provides several tools that can be accessed via MCP clients:
+### get_user_sets
+List user-created collections.
+```
+Input: None
+Output: List of recent user collections
+```
 
-- **search_artwork**: Search for artworks using a query string.
-- **get_artwork_details**: Retrieve detailed information about an artwork using its object number.
-- **get_artwork_image**: Get image tiles for an artwork using its object number.
-- **get_user_sets**: List user-created collections.
-- **get_user_set_details**: Retrieve details about a specific user collection.
-- **open_image_in_browser**: Open an artwork's image URL directly in your default web browser.
+### get_user_set_details
+Retrieve details about a specific user collection.
+```
+Input: Collection ID
+Output: Collection details and contained artworks
+```
 
-### Example Queries
+### open_image_in_browser
+Open an artwork's image URL directly in your default web browser.
+```
+Input: Image URL or object number
+Output: Success/failure status
+```
 
-Here are some example queries you can use with Claude to interact with each tool:
+## Example Queries for Claude
 
-#### Search Artwork
+Here are some natural language queries you can use with Claude to interact with the tools:
+
+### Searching and Exploring
 ```
 "Show me paintings by Rembrandt"
 "Find artworks featuring flowers"
-"Search for paintings with 'night' in the title"
+"What artworks in the collection include cats?"
 ```
 
-#### Get Artwork Details
+### Detailed Information
 ```
 "Tell me more about The Night Watch"
-"Get detailed information about SK-C-5" (The Night Watch's object number)
 "What are the details of Vermeer's The Milkmaid?"
+"Get information about SK-C-5"
 ```
 
-#### Get Artwork Images
-```
-"Show me the image tiles for The Night Watch"
-"Get the high-resolution image data for SK-C-5"
-```
-
-#### User Collections
-```
-"Show me some user-created collections"
-"What are the most recent Rijksstudio sets?"
-```
-
-#### User Collection Details
-```
-"Show me what's in collection 123456"
-"Get the details of user set 'Dutch Masters'"
-```
-
-#### Open Image in Browser
+### Images and Visualization
 ```
 "Open The Night Watch in my browser"
-"Show me this painting in my web browser"
-"Open the high-res version of this artwork"
+"Show me a high-resolution version of this painting"
+"Can I see this artwork in more detail?"
 ```
 
-You can also combine these queries naturally:
+### Combined Queries
 ```
 "Find paintings of flowers and open the first one in my browser"
-"Search for Vermeer's works and show me The Milkmaid in my browser"
+"Search for Vermeer's works and tell me about The Milkmaid"
 ```
-
-### Why Open in Browser?
-
-The `open_image_in_browser` tool addresses a key limitation: Claude cannot directly display external images in the chat window or as artifacts. This tool provides a workaround by allowing Claude to:
-
-1. Find artwork images through the Rijksmuseum API
-2. Open them directly in your system's default web browser
-
-This enables a more interactive experience when discussing artworks, as Claude can help you:
-- View the actual artwork being discussed
-- Examine specific details mentioned in the conversation
-- Compare different artworks by opening multiple browser tabs
-- Access high-resolution images for better analysis
-
-The tool works cross-platform (Windows, macOS, and Linux) and seamlessly bridges the gap between Claude's text-based interface and the visual nature of art exploration.
 
 ## Error Handling
 
-The server handles errors from the Rijksmuseum API and returns them in a structured format. Ensure that your MCP client is set up to handle these error messages appropriately.
+The server implements standard MCP error handling:
+
+- Invalid requests return appropriate error codes and messages
+- API errors are properly formatted and passed through to the client
+- Network issues are handled gracefully with informative error messages
+
+## Development
+
+### Building from Source
+
+1. Make changes to the source code in the `src` directory
+2. Build the project:
+   ```bash
+   npm run build
+   ```
+3. The built files will be in the `build` directory
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes. 
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run the tests
+5. Submit a pull request
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-
-
-
