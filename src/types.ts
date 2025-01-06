@@ -1,5 +1,5 @@
 // Add these new types
-interface ArtworkData {
+export interface ArtworkData {
   id: string;
   title: string;
   artist: string;
@@ -17,7 +17,7 @@ interface ArtworkData {
   };
 }
 
-interface SearchParams {
+export interface SearchParams {
   query?: string;
   artist?: string;
   type?: string;
@@ -26,4 +26,12 @@ interface SearchParams {
   hasImage?: boolean;
   page?: number;
   pageSize?: number;
+}
+
+export interface TimelineArtwork {
+  year: string;
+  title: string;
+  objectNumber: string;
+  description: string;
+  image: string | null;
 } 

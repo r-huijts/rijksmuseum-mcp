@@ -8,13 +8,16 @@ import {
   CallToolRequest,
   CallToolResult,
   ListResourcesRequestSchema,
-  ReadResourceRequestSchema
+  ReadResourceRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import axios from "axios";
 import dotenv from "dotenv";
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { TimelineArtwork } from './types.js';
 
 // Load environment variables
 dotenv.config();
@@ -122,6 +125,10 @@ class RijksmuseumServer {
           list: true,
           read: true,
           subscribe: false
+        },
+        prompts: {
+          list: true,
+          get: true
         }
       }
     });
@@ -291,6 +298,27 @@ class RijksmuseumServer {
             },
             required: ["artworkId"]
           }
+        },
+        {
+          name: "get_artist_timeline",
+          description: "Get a chronological timeline of an artist's works",
+          inputSchema: {
+            type: "object",
+            properties: {
+              artist: {
+                type: "string",
+                description: "Name of the artist"
+              },
+              maxWorks: {
+                type: "number",
+                description: "Maximum number of works to include",
+                minimum: 1,
+                maximum: 50,
+                default: 10
+              }
+            },
+            required: ["artist"]
+          }
         }
       ]
     }));
@@ -426,6 +454,43 @@ class RijksmuseumServer {
               };
             }
 
+          case "get_artist_timeline":
+            const { artist, maxWorks = 10 } = request.params.arguments as { artist: string; maxWorks?: number };
+            
+            const timelineResponse = await this.axiosInstance.get(API_CONFIG.ENDPOINTS.COLLECTION, {
+              params: {
+                involvedMaker: artist,
+                ps: maxWorks,
+                s: "chronologic",
+                imgonly: true
+              }
+            });
+
+            const timelineArtworks: TimelineArtwork[] = timelineResponse.data.artObjects.map((artwork: ArtworkSearchResult) => ({
+              year: artwork.longTitle.match(/\d{4}/)?.[0] || "Unknown",
+              title: artwork.title,
+              objectNumber: artwork.objectNumber,
+              description: artwork.longTitle,
+              image: artwork.webImage ? artwork.webImage.url : null
+            }));
+
+            // Sort by year
+            timelineArtworks.sort((a: TimelineArtwork, b: TimelineArtwork) => {
+              if (a.year === "Unknown") return 1;
+              if (b.year === "Unknown") return -1;
+              return parseInt(a.year) - parseInt(b.year);
+            });
+
+            return {
+              content: [{
+                type: "text",
+                text: JSON.stringify({
+                  artist,
+                  works: timelineArtworks
+                }, null, 2)
+              }]
+            };
+
           default:
             throw new McpError(
               ErrorCode.MethodNotFound,
@@ -515,7 +580,17 @@ class RijksmuseumServer {
     });
 
     // 3. Add a prompt template for art analysis
-    const PROMPTS = {
+    interface Prompt {
+      name: string;
+      description: string;
+      arguments: Array<{
+        name: string;
+        description: string;
+        required: boolean;
+      }>;
+    }
+
+    const PROMPTS: Record<string, Prompt> = {
       "analyze-artwork": {
         name: "analyze-artwork",
         description: "Analyze an artwork's composition, style, and historical context",
@@ -524,8 +599,95 @@ class RijksmuseumServer {
           description: "ID of the artwork to analyze",
           required: true
         }]
+      },
+      "generate-artist-timeline": {
+        name: "generate-artist-timeline",
+        description: "Generate a chronological timeline of an artist's most notable works",
+        arguments: [{
+          name: "artist",
+          description: "Name of the artist",
+          required: true
+        }, {
+          name: "maxWorks",
+          description: "Maximum number of works to include (default: 10)",
+          required: false
+        }]
       }
     };
+
+    // Add prompt handlers
+    this.server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+      prompts: Object.values(PROMPTS)
+    }));
+
+    this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+      const prompt = PROMPTS[request.params.name];
+      if (!prompt) {
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Prompt not found: ${request.params.name}`
+        );
+      }
+
+      if (request.params.name === "generate-artist-timeline") {
+        const { artist, maxWorks } = request.params.arguments || {};
+        if (!artist) {
+          throw new McpError(
+            ErrorCode.InvalidRequest,
+            "Artist name is required"
+          );
+        }
+
+        return {
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: `Create a visual timeline artifact showing the chronological progression of ${artist}'s most notable works${maxWorks ? ` (limited to ${maxWorks} works)` : ''}.
+
+For each work, include:
+- Year of creation
+- Title of the work
+- A brief description
+
+Format the timeline as a visually appealing chronological progression, with clear spacing between different time periods. Use markdown formatting to enhance readability.
+
+The data for this timeline will be provided by the get_artist_timeline tool. Please call this tool with the artist name "${artist}"${maxWorks ? ` and maxWorks=${maxWorks}` : ''} to get the artwork data, then create a beautiful visualization of the timeline.`
+              }
+            }
+          ]
+        };
+      }
+
+      // Handle other prompts...
+      if (request.params.name === "analyze-artwork") {
+        const { artworkId } = request.params.arguments || {};
+        if (!artworkId) {
+          throw new McpError(
+            ErrorCode.InvalidRequest,
+            "Artwork ID is required"
+          );
+        }
+
+        return {
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: `Analyze the composition, style, and historical context of artwork ${artworkId} and provide a detailed analysis of the artwork's meaning and significance in the context of the artist's oeuvre and the broader art world, then create a beautiful artifact that captures the essence of the artwork and its context.`
+              }
+            }
+          ]
+        };
+      }
+
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        `Prompt implementation not found: ${request.params.name}`
+      );
+    });
   }
 
   private async openInBrowser(url: string): Promise<void> {
