@@ -518,12 +518,7 @@ class RijksmuseumServer {
         name: "Popular Artworks",
         mimeType: "application/json",
         description: "Most viewed artworks in the collection"
-      }, {
-        uri: "art://collection/colors/palette",
-        name: "Collection Color Palette",
-        mimeType: "application/json",
-        description: "Analysis of dominant colors across the collection"
-      }]
+    }]
     }));
 
     // Add read resource handler
@@ -542,23 +537,6 @@ class RijksmuseumServer {
                 uri: request.params.uri,
                 mimeType: "application/json",
                 text: JSON.stringify(popularResponse.data, null, 2)
-              }]
-            };
-
-          case "art://collection/colors/palette":
-            // For now return a mock color palette
-            return {
-              contents: [{
-                uri: request.params.uri,
-                mimeType: "application/json",
-                text: JSON.stringify({
-                  colors: [
-                    { name: "Dark Brown", hex: "#4A3728", percentage: 35 },
-                    { name: "Gold", hex: "#C9B037", percentage: 25 },
-                    { name: "Black", hex: "#000000", percentage: 20 },
-                    { name: "Cream", hex: "#F5E6CB", percentage: 20 }
-                  ]
-                }, null, 2)
               }]
             };
 
@@ -650,6 +628,7 @@ For each work, include:
 - Year of creation
 - Title of the work
 - A brief description
+- The artist's age at the time of creation
 
 Format the timeline as a visually appealing chronological progression, with clear spacing between different time periods. Use markdown formatting to enhance readability.
 
