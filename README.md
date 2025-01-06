@@ -19,7 +19,7 @@ This project implements a Model Context Protocol (MCP) server that interfaces wi
 ## Prerequisites
 
 - Node.js v18 or higher
-- An API key from the Rijksmuseum (get one by registering at [https://www.rijksmuseum.nl/en/research/conduct-research/data](https://www.rijksmuseum.nl/en/research/conduct-research/data))
+- An API key from the Rijksmuseum (get one here: [https://data.rijksmuseum.nl/docs/api/](https://data.rijksmuseum.nl/docs/api/))
 
 ## Installation
 
