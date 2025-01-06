@@ -34,4 +34,77 @@ export interface TimelineArtwork {
   objectNumber: string;
   description: string;
   image: string | null;
+}
+
+export interface ArtworkSearchResult {
+  id: string;
+  objectNumber: string;
+  title: string;
+  principalOrFirstMaker: string;
+  longTitle: string;
+  subTitle: string;
+  scLabelLine: string;
+  location: string;
+  webImage?: {
+    url: string;
+    width: number;
+    height: number;
+  };
+}
+
+export interface SearchArtworkArguments {
+  query: string;
+  pageSize?: number;
+}
+
+export interface ArtworkDetails {
+  artObject: {
+    id: string;
+    objectNumber: string;
+    title: string;
+    // Add other relevant fields based on the API response
+  };
+}
+
+export interface ImageTiles {
+  levels: Array<{
+    name: string;
+    width: number;
+    height: number;
+    tiles: Array<{
+      x: number;
+      y: number;
+      url: string;
+    }>;
+  }>;
+}
+
+export interface UserSet {
+  id: string;
+  name: string;
+  description: string | null;
+  count: number;
+  // Add other relevant fields
+}
+
+export interface UserSetDetails extends UserSet {
+  setItems: Array<{
+    id: string;
+    objectNumber: string;
+    // Add other relevant fields
+  }>;
+}
+
+export interface OpenImageArguments {
+  imageUrl: string;
+}
+
+export interface Prompt {
+  name: string;
+  description: string;
+  arguments: Array<{
+    name: string;
+    description: string;
+    required: boolean;
+  }>;
 } 
