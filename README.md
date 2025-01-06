@@ -14,6 +14,7 @@ This project implements a Model Context Protocol (MCP) server that interfaces wi
 - **User Collections**: Explore collections created by users in Rijksstudio
 - **User Collection Details**: Get detailed information about a specific user collection
 - **Open Images in Browser**: Directly open artwork images in your system's default web browser
+- **Artist Timelines**: Create chronological timelines of an artist's works
 
 ## Prerequisites
 
@@ -115,8 +116,49 @@ Output: Collection details and contained artworks
 ### open_image_in_browser
 Open an artwork's image URL directly in your default web browser.
 ```
-Input: Image URL or object number
+Input: Image URL
 Output: Success/failure status
+```
+
+### get_artist_timeline
+Create a chronological timeline of an artist's works.
+```
+Input: 
+  - artist: Name of the artist
+  - maxWorks: Maximum number of works to include (default: 10, max: 50)
+Output: Chronologically ordered list of the artist's works
+```
+
+## Available Prompts
+
+The server provides prompt templates for common tasks:
+
+### analyze-artwork
+Generate a detailed analysis of an artwork's composition, style, and historical context.
+```
+Input: 
+  - artworkId: ID of the artwork to analyze
+Output: Comprehensive analysis of the artwork
+```
+
+### generate-artist-timeline
+Create a visual timeline showing the chronological progression of an artist's works.
+```
+Input:
+  - artist: Name of the artist
+  - maxWorks: Maximum number of works to include (optional)
+Output: Visual timeline with artwork details and chronological progression
+```
+
+## Available Resources
+
+The server provides access to curated collections:
+
+### art://collection/popular
+Access the most viewed artworks in the collection.
+```
+Type: application/json
+Description: Popular artworks from the Rijksmuseum collection
 ```
 
 ## Example Queries for Claude
@@ -144,10 +186,18 @@ Here are some natural language queries you can use with Claude to interact with 
 "Can I see this artwork in more detail?"
 ```
 
+### Artist Timelines and Analysis
+```
+"Create a timeline of Rembrandt's works"
+"Analyze the composition of The Night Watch"
+"Show me the progression of Vermeer's paintings"
+```
+
 ### Combined Queries
 ```
 "Find paintings of flowers and open the first one in my browser"
 "Search for Vermeer's works and tell me about The Milkmaid"
+"Create a timeline of Rembrandt's works and analyze his self-portraits"
 ```
 
 ## Error Handling
