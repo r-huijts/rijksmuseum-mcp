@@ -1,234 +1,187 @@
 ![rijksmuseum logo](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Logo_Rijksmuseum.svg/799px-Logo_Rijksmuseum.svg.png)
 
-# Rijksmuseum Amsterdam MCP Server
+# Rijksmuseum MCP Server
 
-This project implements a Model Context Protocol (MCP) server that interfaces with the Rijksmuseum API. It allows you to search for artworks, retrieve detailed information about specific artworks, access image tiles for artworks, and explore user-created collections from Amsterdam's famous Rijksmuseum.
+A Model Context Protocol (MCP) server that provides access to the Rijksmuseum's collection through natural language interactions. This server enables AI models to explore, analyze, and interact with artworks and collections from the Rijksmuseum.
 
 <a href="https://glama.ai/mcp/servers/4rmiexp64y"><img width="380" height="200" src="https://glama.ai/mcp/servers/4rmiexp64y/badge" alt="Rijksmuseum Server MCP server" /></a>
 
 ## Features
 
-- **Search Artworks**: Find artworks in the Rijksmuseum collection using search terms
-- **Artwork Details**: Retrieve detailed information about a specific artwork
-- **Artwork Images**: Access image tiles for high-resolution views of artworks
-- **User Collections**: Explore collections created by users in Rijksstudio
-- **User Collection Details**: Get detailed information about a specific user collection
-- **Open Images in Browser**: Directly open artwork images in your system's default web browser
-- **Artist Timelines**: Create chronological timelines of an artist's works
+The server provides several tools for interacting with the Rijksmuseum's collection:
 
-## Prerequisites
+### 1. Search Artworks (`search_artwork`)
+Search and filter artworks using various criteria including:
+- Text-based search
+- Artist name
+- Artwork type
+- Materials and techniques
+- Time periods
+- Colors
+- And more
 
-- Node.js v18 or higher
-- An API key from the Rijksmuseum (get one by registering at [https://www.rijksmuseum.nl/en/research/conduct-research/data](https://www.rijksmuseum.nl/en/research/conduct-research/data))
+### 2. Artwork Details (`get_artwork_details`)
+Retrieve comprehensive information about specific artworks, including:
+- Basic details (title, artist, dates)
+- Physical properties
+- Historical context
+- Visual information
+- Curatorial information
+- Exhibition history
 
-## Installation
+### 3. High-Resolution Images (`get_artwork_image`)
+Access high-resolution image data with deep zoom capabilities:
+- Multiple zoom levels
+- Tile-based image loading
+- Full resolution support
+- Position information
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-directory>
-   ```
+### 4. User Collections (`get_user_sets` & `get_user_set_details`)
+Explore user-created collections:
+- Browse curated sets
+- View thematic groupings
+- Analyze collection patterns
+- Access detailed set information
 
+### 5. Image Viewing (`open_image_in_browser`)
+Open artwork images directly in your browser for detailed viewing.
+
+### 6. Artist Timeline (`get_artist_timeline`)
+Generate chronological timelines of artists' works:
+- Track artistic development
+- Analyze periods and styles
+- Study career progression
+
+## Example Use Cases
+
+Here are some example queries you can ask the AI when using this server:
+
+### Artwork Discovery
+```
+"Show me all paintings by Rembrandt from the 1640s"
+"Find artworks that prominently feature the color blue"
+"What are the most famous masterpieces in the collection?"
+"Search for still life paintings from the Dutch Golden Age"
+```
+
+### Artwork Analysis
+```
+"Tell me everything about The Night Watch"
+"What are the dimensions and materials used in Van Gogh's Self Portrait?"
+"Show me high-resolution details of the brushwork in Vermeer's The Milkmaid"
+"Compare the colors used in different versions of The Potato Eaters"
+```
+
+### Artist Research
+```
+"Create a timeline of Rembrandt's self-portraits"
+"How did Van Gogh's use of color evolve throughout his career?"
+"Show me all works by Frans Hals in chronological order"
+"What techniques did Jan Steen use in his paintings?"
+```
+
+### Thematic Exploration
+```
+"Find all artworks depicting biblical scenes"
+"Show me paintings of Amsterdam in the 17th century"
+"What artworks feature flowers or still life arrangements?"
+"Find portraits that include musical instruments"
+```
+
+### Collection Analysis
+```
+"Show me the most popular user-curated collections"
+"Find sets that focus on landscape paintings"
+"What are the recent additions to the museum's collection?"
+"Show me collections featuring works from multiple artists"
+```
+
+### Visual Details
+```
+"Let me examine the details in the background of The Night Watch"
+"Show me a close-up of the jewelry in Girl with a Pearl Earring"
+"Can you display the highest resolution version of The Jewish Bride?"
+"I want to study the facial expressions in The Syndics"
+```
+
+## Getting Started
+
+You can install this server in two ways:
+
+### 1. Using Claude Desktop with NPM Package
+Update your Claude configuration file (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "rijksmuseum-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-rijksmuseum"
+      ],
+      "env": {
+        "RIJKSMUSEUM_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+You can get an API key from the [Rijksmuseum API Portal](https://data.rijksmuseum.nl/object-metadata/api/).
+
+### 2. From Source
+1. Clone this repository
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Build the project:
+3. Copy the example environment file:
    ```bash
-   npm run build
+   cp .env.example .env
    ```
-
-## Configuration
-
-### Environment Variables
-Create a `.env` file in the root directory with your Rijksmuseum API key:
-```
-RIJKSMUSEUM_API_KEY=your-api-key-here
-```
-
-### Claude Desktop Integration
-
-To use this server with Claude Desktop:
-
-1. Locate your Claude Desktop configuration file:
-   - **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - **Windows**: `%AppData%\Claude\claude_desktop_config.json`
-
-2. Add the server configuration:
+4. Add your Rijksmuseum API key to the `.env` file:
+   ```
+   RIJKSMUSEUM_API_KEY=your_api_key_here
+   ```
+5. Then update your Claude configuration file:
    ```json
    {
      "mcpServers": {
-       "rijksmuseum": {
+       "rijksmuseum-server": {
          "command": "node",
-         "args": ["/absolute/path/to/build/index.js"],
+         "args": [
+           "/path/to/rijksmuseum-server/build/index.js"
+         ],
          "env": {
-           "RIJKSMUSEUM_API_KEY": "your-api-key-here"
+           "RIJKSMUSEUM_API_KEY": "your_api_key_here"
          }
        }
      }
    }
    ```
 
-   Replace `/absolute/path/to/build/index.js` with the absolute path to the built JavaScript file in your project's `build` directory.
+Make sure to:
+- Replace `/path/to/rijksmuseum-server` with the actual path to your installation
+- Add your Rijksmuseum API key in the `env` section
 
-3. Restart Claude Desktop for the changes to take effect.
+After updating the configuration, restart Claude Desktop for the changes to take effect.
 
-## Available Tools
+## Configuration
 
-The server provides several tools that can be accessed through MCP clients:
+The server can be configured through environment variables:
+- `RIJKSMUSEUM_API_KEY`: Your Rijksmuseum API key (required)
+- `PORT`: Server port (default: 3000)
+- `LOG_LEVEL`: Logging level (default: 'info')
 
-### search_artwork
-Search for artworks using a query string.
-```
-Input: Query string (e.g., "Rembrandt", "flowers", "night")
-Output: List of matching artworks with basic details
-```
+## API Documentation
 
-### get_artwork_details
-Retrieve detailed information about an artwork using its object number.
-```
-Input: Object number (e.g., "SK-C-5" for The Night Watch)
-Output: Comprehensive artwork details including title, artist, date, materials, etc.
-```
-
-### get_artwork_image
-Get image tiles for an artwork using its object number.
-```
-Input: Object number
-Output: Available image tiles and resolutions
-```
-
-### get_user_sets
-List user-created collections.
-```
-Input: None
-Output: List of recent user collections
-```
-
-### get_user_set_details
-Retrieve details about a specific user collection.
-```
-Input: Collection ID
-Output: Collection details and contained artworks
-```
-
-### open_image_in_browser
-Open an artwork's image URL directly in your default web browser.
-```
-Input: Image URL
-Output: Success/failure status
-```
-
-### get_artist_timeline
-Create a chronological timeline of an artist's works.
-```
-Input: 
-  - artist: Name of the artist
-  - maxWorks: Maximum number of works to include (default: 10, max: 50)
-Output: Chronologically ordered list of the artist's works
-```
-
-## Available Prompts
-
-The server provides prompt templates for common tasks:
-
-### analyze-artwork
-Generate a detailed analysis of an artwork's composition, style, and historical context.
-```
-Input: 
-  - artworkId: ID of the artwork to analyze
-Output: Comprehensive analysis of the artwork
-```
-
-### generate-artist-timeline
-Create a visual timeline showing the chronological progression of an artist's works.
-```
-Input:
-  - artist: Name of the artist
-  - maxWorks: Maximum number of works to include (optional)
-Output: Visual timeline with artwork details and chronological progression
-```
-
-## Available Resources
-
-The server provides access to curated collections:
-
-### art://collection/popular
-Access the most viewed artworks in the collection.
-```
-Type: application/json
-Description: Popular artworks from the Rijksmuseum collection
-```
-
-## Example Queries for Claude
-
-Here are some natural language queries you can use with Claude to interact with the tools:
-
-### Searching and Exploring
-```
-"Show me paintings by Rembrandt"
-"Find artworks featuring flowers"
-"What artworks in the collection include cats?"
-```
-
-### Detailed Information
-```
-"Tell me more about The Night Watch"
-"What are the details of Vermeer's The Milkmaid?"
-"Get information about SK-C-5"
-```
-
-### Images and Visualization
-```
-"Open The Night Watch in my browser"
-"Show me a high-resolution version of this painting"
-"Can I see this artwork in more detail?"
-```
-
-### Artist Timelines and Analysis
-```
-"Create a timeline of Rembrandt's works"
-"Analyze the composition of The Night Watch"
-"Show me the progression of Vermeer's paintings"
-```
-
-### Combined Queries
-```
-"Find paintings of flowers and open the first one in my browser"
-"Search for Vermeer's works and tell me about The Milkmaid"
-"Create a timeline of Rembrandt's works and analyze his self-portraits"
-```
-
-## Error Handling
-
-The server implements standard MCP error handling:
-
-- Invalid requests return appropriate error codes and messages
-- API errors are properly formatted and passed through to the client
-- Network issues are handled gracefully with informative error messages
-
-## Development
-
-### Building from Source
-
-1. Make changes to the source code in the `src` directory
-2. Build the project:
-   ```bash
-   npm run build
-   ```
-3. The built files will be in the `build` directory
+For detailed information about the Rijksmuseum API endpoints used by this server, visit:
+[Rijksmuseum API Documentation](https://data.rijksmuseum.nl/object-metadata/api/)
 
 ## Contributing
 
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run the tests
-5. Submit a pull request
+Contributions are welcome! Please feel free to submit pull requests or create issues for bugs and feature requests.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
