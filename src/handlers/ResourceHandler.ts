@@ -19,7 +19,11 @@ export class ResourceHandler {
     try {
       switch (uri) {
         case "art://collection/popular":
-          const popularArtworks = await this.apiClient.searchArtworks("", 10);
+          const popularArtworks = await this.apiClient.searchArtworks({
+            ps: 10,
+            sortBy: 'relevance',
+            imgonly: true
+          });
           return {
             contents: [{
               uri,

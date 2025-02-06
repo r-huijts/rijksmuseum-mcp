@@ -1,4 +1,4 @@
-import { SearchArtworkArguments, OpenImageArguments } from '../types.js';
+import { SearchArtworkArguments, OpenImageArguments, GetUserSetDetailsArguments } from '../types.js';
 
 export function isSearchArtworkArguments(args: unknown): args is SearchArtworkArguments {
   if (!args || typeof args !== 'object') return false;
@@ -28,4 +28,14 @@ export function isOpenImageArguments(args: unknown): args is OpenImageArguments 
   if (!args || typeof args !== 'object') return false;
   const { imageUrl } = args as any;
   return typeof imageUrl === 'string' && imageUrl.startsWith('http');
+}
+
+export function isGetUserSetDetailsArguments(args: unknown): args is GetUserSetDetailsArguments {
+  if (!args || typeof args !== 'object') return false;
+  const params = args as any;
+  if (typeof params.setId !== 'string') return false;
+  if (params.culture !== undefined && !['nl', 'en'].includes(params.culture)) return false;
+  if (params.page !== undefined && typeof params.page !== 'number') return false;
+  if (params.pageSize !== undefined && typeof params.pageSize !== 'number') return false;
+  return true;
 } 

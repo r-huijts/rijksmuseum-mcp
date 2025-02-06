@@ -148,13 +148,27 @@ class RijksmuseumServer {
         },
         {
           name: "get_artwork_details",
-          description: "Retrieve comprehensive details about a specific artwork using its unique identifier. Returns detailed information including title, artist, creation date, physical properties, historical context, acquisition details, and more. Essential for in-depth analysis of a single artwork.",
+          description: "Retrieve comprehensive details about a specific artwork from the Rijksmuseum collection. Returns extensive information including:\n\n" +
+                      "- Basic details (title, artist, dates)\n" +
+                      "- Physical properties (dimensions, materials, techniques)\n" +
+                      "- Historical context (dating, historical persons, documentation)\n" +
+                      "- Visual information (colors, image data)\n" +
+                      "- Curatorial information (descriptions, labels, location)\n" +
+                      "- Acquisition details\n" +
+                      "- Exhibition history\n\n" +
+                      "This is the primary tool for in-depth research on a specific artwork, providing all available museum documentation and metadata.",
           inputSchema: {
             type: "object",
             properties: {
               objectNumber: {
                 type: "string",
-                description: "The unique identifier of the artwork in the Rijksmuseum collection. Format is typically a combination of letters and numbers, e.g., 'SK-C-5' for The Night Watch, 'SK-A-3262' for Van Gogh's Self Portrait. This ID can be obtained from search results."
+                description: "The unique identifier of the artwork in the Rijksmuseum collection. Format is typically a combination of letters and numbers (e.g., 'SK-C-5' for The Night Watch, 'SK-A-3262' for Van Gogh's Self Portrait). Case-sensitive. This ID can be obtained from search results."
+              },
+              culture: {
+                type: "string",
+                enum: ["nl", "en"],
+                description: "Language for the artwork details. Use 'en' for English or 'nl' for Dutch (Nederlands). Affects all textual information including descriptions, titles, and historical documentation.",
+                default: "en"
               }
             },
             required: ["objectNumber"]
@@ -162,13 +176,31 @@ class RijksmuseumServer {
         },
         {
           name: "get_artwork_image",
-          description: "Retrieve detailed image tile information for high-resolution viewing of an artwork. This tool provides data for implementing deep zoom functionality, allowing detailed examination of the artwork at various zoom levels. Useful for studying fine details, brushwork, or conservation details.",
+          description: "Retrieve detailed image tile information for high-resolution viewing of an artwork. This tool provides data for implementing deep zoom functionality, allowing detailed examination of the artwork at various zoom levels.\n\n" +
+                      "The response includes multiple zoom levels (z0 to z6):\n" +
+                      "- z0: Highest resolution (largest image)\n" +
+                      "- z6: Lowest resolution (smallest image)\n\n" +
+                      "Each zoom level contains:\n" +
+                      "- Total width and height of the image at that level\n" +
+                      "- A set of image tiles that make up the complete image\n" +
+                      "- Position information (x,y) for each tile\n\n" +
+                      "This is particularly useful for:\n" +
+                      "- Implementing deep zoom viewers\n" +
+                      "- Studying fine artwork details\n" +
+                      "- Analyzing brushwork or conservation details\n" +
+                      "- Creating interactive viewing experiences",
           inputSchema: {
             type: "object",
             properties: {
               objectNumber: {
                 type: "string",
                 description: "The unique identifier of the artwork in the Rijksmuseum collection. Same format as used in get_artwork_details. The artwork must have an associated image for this to work."
+              },
+              culture: {
+                type: "string",
+                enum: ["nl", "en"],
+                description: "Language for the API response. Use 'en' for English or 'nl' for Dutch (Nederlands). While this endpoint primarily returns image data, any textual metadata will be in the specified language.",
+                default: "en"
               }
             },
             required: ["objectNumber"]
@@ -176,35 +208,80 @@ class RijksmuseumServer {
         },
         {
           name: "get_user_sets",
-          description: "Retrieve collections created by Rijksstudio users. These are curated sets of artworks that users have grouped together, often around themes, artists, or periods. Useful for discovering thematically related artworks or user-curated exhibitions.",
+          description: "Retrieve collections created by Rijksstudio users. These are curated sets of artworks that users have grouped together based on themes, artists, periods, or personal interests.\n\n" +
+                      "Each set includes:\n" +
+                      "- Basic information (name, description, creation date)\n" +
+                      "- Creator details (username, language preference)\n" +
+                      "- Collection statistics (number of items)\n" +
+                      "- Navigation links (API and web URLs)\n\n" +
+                      "This tool is useful for:\n" +
+                      "- Discovering user-curated exhibitions\n" +
+                      "- Finding thematically related artworks\n" +
+                      "- Exploring popular artwork groupings\n" +
+                      "- Studying collection patterns",
           inputSchema: {
             type: "object",
             properties: {
               page: {
                 type: "number",
-                description: "Page number for paginated results, starting at 0. Use with pageSize to navigate through large sets of user collections.",
+                description: "Page number for paginated results, starting at 0. Use with pageSize to navigate through sets. Note: page * pageSize cannot exceed 10,000.",
                 minimum: 0,
                 default: 0
               },
               pageSize: {
                 type: "number",
-                description: "Number of user collections to return per page. Adjust based on how many collections you want to analyze at once.",
+                description: "Number of user sets to return per page. Must be between 1 and 100. Larger values return more results but take longer to process.",
                 minimum: 1,
                 maximum: 100,
                 default: 10
+              },
+              culture: {
+                type: "string",
+                enum: ["nl", "en"],
+                description: "Language for the response data. Use 'en' for English or 'nl' for Dutch (Nederlands). Affects set descriptions and user information.",
+                default: "en"
               }
             }
           }
         },
         {
           name: "get_user_set_details",
-          description: "Get detailed information about a specific user-created collection, including all artworks in the set. Useful for analyzing thematic groupings, studying curatorial choices, or exploring relationships between artworks.",
+          description: "Retrieve detailed information about a specific user-created collection in Rijksstudio. Returns comprehensive information about the set and its contents, including:\n\n" +
+                      "- Set metadata (name, description, creation date)\n" +
+                      "- Creator information\n" +
+                      "- List of artworks in the set\n" +
+                      "- Image data for each artwork\n" +
+                      "- Navigation links\n\n" +
+                      "This tool is particularly useful for:\n" +
+                      "- Analyzing thematic groupings of artworks\n" +
+                      "- Studying curatorial choices\n" +
+                      "- Understanding collection patterns\n" +
+                      "- Exploring relationships between artworks",
           inputSchema: {
             type: "object",
             properties: {
               setId: {
                 type: "string",
-                description: "The unique identifier of the user collection to fetch. This ID can be obtained from the get_user_sets results. Each set represents a curated group of artworks."
+                description: "The unique identifier of the user set to fetch. Format is typically 'userId-setname'. This ID can be obtained from the get_user_sets results."
+              },
+              culture: {
+                type: "string",
+                enum: ["nl", "en"],
+                description: "Language for the response data. Use 'en' for English or 'nl' for Dutch (Nederlands). Affects set descriptions and artwork information.",
+                default: "en"
+              },
+              page: {
+                type: "number",
+                description: "Page number for paginated results, starting at 0. Use with pageSize to navigate through large sets. Note: page * pageSize cannot exceed 10,000.",
+                minimum: 0,
+                default: 0
+              },
+              pageSize: {
+                type: "number",
+                description: "Number of artworks to return per page. Must be between 1 and 100. Default is 25. Larger values return more artworks but take longer to process.",
+                minimum: 1,
+                maximum: 100,
+                default: 25
               }
             },
             required: ["setId"]
