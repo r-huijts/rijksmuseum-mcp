@@ -127,7 +127,7 @@ Update your Claude configuration file (`~/Library/Application Support/Claude/cla
   }
 }
 ```
-You can get an API key from the [Rijksmuseum API Portal](https://data.rijksmuseum.nl/object-metadata/api/).
+You can get an API key from the [Rijksmuseum API Portal](https://data.rijksmuseum.nl/docs/api/).
 
 ### 2. From Source
 1. Clone this repository
