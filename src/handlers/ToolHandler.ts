@@ -37,8 +37,7 @@ export class ToolHandler {
       throw new Error("Invalid arguments for search_artwork");
     }
 
-    const { query, pageSize = 10 } = request.params.arguments;
-    const artworks = await this.apiClient.searchArtworks(query, pageSize);
+    const artworks = await this.apiClient.searchArtworks(request.params.arguments);
 
     return {
       content: [{

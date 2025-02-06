@@ -5,12 +5,13 @@ import {
   ImageTiles, 
   UserSet, 
   UserSetDetails,
-  TimelineArtwork
+  TimelineArtwork,
+  SearchArtworkArguments
 } from '../types.js';
 
 export class RijksmuseumApiClient {
   private axiosInstance: AxiosInstance;
-  private readonly BASE_URL = 'https://www.rijksmuseum.nl/api/en';
+  private readonly BASE_URL = 'https://www.rijksmuseum.nl/api';
   private readonly ENDPOINTS = {
     COLLECTION: 'collection'
   };
@@ -25,13 +26,42 @@ export class RijksmuseumApiClient {
     });
   }
 
-  async searchArtworks(query: string, pageSize: number = 10): Promise<ArtworkSearchResult[]> {
-    const response = await this.axiosInstance.get(this.ENDPOINTS.COLLECTION, {
-      params: {
-        q: query,
-        ps: pageSize
-      }
+  async searchArtworks(params: SearchArtworkArguments): Promise<ArtworkSearchResult[]> {
+    // Validate page and pageSize constraints
+    const p = params.p ?? 0;
+    const ps = params.ps ?? 10;
+    
+    if (p * ps > 10000) {
+      throw new Error('Page * pageSize cannot exceed 10,000');
+    }
+
+    // Build API parameters
+    const apiParams: Record<string, any> = {
+      p,
+      ps,
+      culture: params.culture ?? 'en'
+    };
+
+    // Add optional parameters if they exist
+    if (params.q) apiParams.q = params.q;
+    if (params.involvedMaker) apiParams.involvedMaker = encodeURIComponent(params.involvedMaker);
+    if (params.type) apiParams.type = params.type;
+    if (params.material) apiParams.material = params.material;
+    if (params.technique) apiParams.technique = params.technique;
+    if (params.century) apiParams['f.dating.period'] = params.century;
+    if (params.color) apiParams['f.normalized32Colors.hex'] = params.color.replace('#', '');
+    if (params.imgonly !== undefined) apiParams.imgonly = params.imgonly;
+    if (params.toppieces !== undefined) apiParams.toppieces = params.toppieces;
+    if (params.sortBy) apiParams.s = params.sortBy;
+
+    const response = await this.axiosInstance.get(`${params.culture ?? 'en'}/${this.ENDPOINTS.COLLECTION}`, {
+      params: apiParams
     });
+
+    if (!response.data.artObjects) {
+      throw new Error('Invalid response from Rijksmuseum API');
+    }
+
     return response.data.artObjects;
   }
 

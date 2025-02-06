@@ -53,8 +53,19 @@ export interface ArtworkSearchResult {
 }
 
 export interface SearchArtworkArguments {
-  query: string;
-  pageSize?: number;
+  q?: string;
+  involvedMaker?: string;
+  type?: string;
+  material?: string;
+  technique?: string;
+  century?: number;
+  color?: string;
+  imgonly?: boolean;
+  toppieces?: boolean;
+  sortBy?: 'relevance' | 'objecttype' | 'chronologic' | 'achronologic' | 'artist' | 'artistdesc';
+  p?: number;
+  ps?: number;
+  culture?: 'nl' | 'en';
 }
 
 export interface ArtworkDetails {
