@@ -84,7 +84,7 @@ class RijksmuseumServer {
               },
               involvedMaker: {
                 type: "string",
-                description: "Search for artworks by a specific artist. Must be case-sensitive and exact, e.g., 'Rembrandt van Rijn', 'Vincent van Gogh'. Use + for spaces in names."
+                description: "Search for artworks by a specific artist. Must be case-sensitive and exact, e.g., 'Rembrandt+van+Rijn', 'Vincent+van+Gogh'. Use + for spaces in names."
               },
               type: {
                 type: "string",
