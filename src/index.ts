@@ -80,7 +80,7 @@ class RijksmuseumServer {
             properties: {
               q: {
                 type: "string",
-                description: "General search query that will match against artwork titles, descriptions, materials, techniques, etc. Use this for broad searches like 'sunflowers', 'portrait', 'landscape', etc."
+                description: "General search query that will match against artist names, artwork titles, descriptions, materials, techniques, etc. Use this for broad searches like 'sunflowers', 'portrait', 'landscape', etc."
               },
               involvedMaker: {
                 type: "string",
